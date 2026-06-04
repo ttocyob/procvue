@@ -1,0 +1,31 @@
+group {
+   name: "procvue/panel/loadavg";
+   min: 64 36;
+   parts {
+      part { name: "p7_bg";
+         type: IMAGE; mouse_events: 0;
+         description { state: "default" 0.0;
+            image.normal: "images/bg.png"; image.border: 4 4 4 4;
+            color: COL_PANEL;
+         }
+      }
+      part { name: "p7_label";
+         type: TEXT; mouse_events: 0; scale: 1;
+         description { state: "default" 0.0;
+            rel1 { to: "p7_bg"; relative: 0.0 0.0; offset: 4 4; }
+            rel2 { to: "p7_bg"; relative: 1.0 0.0; offset: -5 16; }
+            color: COL_LABEL;
+            text { font: FN; size: 10; min: 1 0; align: 0.5 0.5; text: "LOAD AVG"; }
+         }
+      }
+      part { name: "p7_value";
+         type: TEXT; mouse_events: 0; scale: 1;
+         description { state: "default" 0.0;
+            rel1 { to: "p7_bg"; relative: 0.0 0.0; offset: 4 18; }
+            rel2 { to: "p7_bg"; relative: 1.0 1.0; offset: -5 -4; }
+            color: COL_LOAD;
+            text { font: FNBD; size: 8; min: 1 0; align: 0.5 0.5; text: "0.00  0.00  0.00"; }
+         }
+      }
+   }
+}

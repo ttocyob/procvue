@@ -1,0 +1,13 @@
+# Meson build directory
+build/
+
+# Compiled EDJ files
+*.edj
+
+# Editor temporaries
+*~
+*.swp
+*.swo
+
+# macOS
+.DS_Store

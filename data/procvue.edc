@@ -1,0 +1,28 @@
+// procvue.edc — default basic theme 
+
+#define FN   "Sans"
+#define FNBD "Sans:style=Bold"
+
+images {
+   image: "images/bg.png" COMP;
+   image: "images/net.png" COMP;
+}
+
+#include "colorclasses.edc"
+
+collections {
+   #include "groups.edc"   // panel order and layout chain
+   #include "hostname.edc" // hostname, date, time
+   #include "cpu.edc"      // cpu "mean" average usage among all cores
+   #include "thermal.edc"  // thermal "mean" average info text from all cores
+   #include "procs.edc"    // process and user count
+   #include "disk.edc"     // disk read/write bars
+   #include "ram.edc"      // ram usage bar
+   #include "net.edc"      // network rx/tx LEDs
+   #include "uptime.edc"   // system uptime
+}
+
+/*    "I pledge allegiance to the Parts, and to the Offsets for which they
+ *    stand.  One Group, under Collections, with Signals, Programs, and
+ *    Relative Positioning for all."
+ */
