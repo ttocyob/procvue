@@ -14,6 +14,7 @@
 #include <Ecore.h>
 #include <Ecore_Evas.h>
 #include <Edje.h>
+#include <Elementary.h>
 #include <Enigmatic_Client.h>
 
 /* ------------------------------------------------------------------ */
@@ -34,6 +35,8 @@
 /* ------------------------------------------------------------------ */
 
 extern Evas_Object      *edje;
+extern Evas_Object      *layout;
+
 extern const char       *g_iface;
 extern Enigmatic_Client *enigmatic;
 

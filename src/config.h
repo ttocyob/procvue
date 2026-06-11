@@ -8,16 +8,11 @@
 
 typedef struct _Procvue_Config {
     int   x, y;
-    int   w, h;
-    double scale;
 } Procvue_Config;
 
 /* Defaults applied when no config file exists */
 #define PROCVUE_DEFAULT_X      100
 #define PROCVUE_DEFAULT_Y      100
-#define PROCVUE_DEFAULT_W       72
-#define PROCVUE_DEFAULT_H      418
-#define PROCVUE_DEFAULT_SCALE  1.0
 
 /**
  * Load geometry from ~/.config/procvue/procvue.eet.

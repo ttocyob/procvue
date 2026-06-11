@@ -7,7 +7,7 @@
 #include <sys/stat.h>   /* mkdir */
 #include <errno.h>
 
-/* ── Eet descriptor ────────────────────────────────────────────────────── */
+/* Eet descriptor */
 
 static Eet_Data_Descriptor *_edd = NULL;
 
@@ -22,12 +22,9 @@ _edd_init(void)
 
     EET_DATA_DESCRIPTOR_ADD_BASIC(_edd, Procvue_Config, "x",     x,     EET_T_INT);
     EET_DATA_DESCRIPTOR_ADD_BASIC(_edd, Procvue_Config, "y",     y,     EET_T_INT);
-    EET_DATA_DESCRIPTOR_ADD_BASIC(_edd, Procvue_Config, "w",     w,     EET_T_INT);
-    EET_DATA_DESCRIPTOR_ADD_BASIC(_edd, Procvue_Config, "h",     h,     EET_T_INT);
-    EET_DATA_DESCRIPTOR_ADD_BASIC(_edd, Procvue_Config, "scale", scale, EET_T_DOUBLE);
 }
 
-/* ── Path helpers ──────────────────────────────────────────────────────── */
+/* Path helpers */
 
 /* Returns a malloc'd path to ~/.config/procvue/procvue.eet */
 static char *
@@ -77,9 +74,6 @@ procvue_config_load(void)
     /* Populate defaults unconditionally; overwrite below if file exists */
     cfg->x     = PROCVUE_DEFAULT_X;
     cfg->y     = PROCVUE_DEFAULT_Y;
-    cfg->w     = PROCVUE_DEFAULT_W;
-    cfg->h     = PROCVUE_DEFAULT_H;
-    cfg->scale = PROCVUE_DEFAULT_SCALE;
 
     char *path = _config_path();
     if (!path) return cfg;
@@ -101,10 +95,7 @@ procvue_config_load(void)
     eet_shutdown();
 
     if (loaded) {
-        /* Sanity-clamp: reject obviously bad geometry */
-        if (loaded->w > 0 && loaded->h > 0 && loaded->scale > 0.0) {
-            *cfg = *loaded;
-        }
+        *cfg = *loaded;
         free(loaded);
     }
 

@@ -1,0 +1,209 @@
+group {
+   name: "procvue/panel/cpu";
+   min: 64 32;
+
+   parts {
+      part { name: "cpu_bg";
+         type: IMAGE;
+         scale: 1;
+         mouse_events: 0;
+
+         description { state: "default" 0.0;
+            image.normal: "images/bg.png";
+            image.border: 4 4 4 4;
+            color_class: "/procvue/bg/panel";
+         }
+      }
+
+// spacer for the headers (cpu_label, cpu_value)
+      part { 
+         name: "cpu_header";
+         type: SPACER;
+         scale: 1;
+
+         description { 
+            state: "default" 0.0;
+            rel1 { to: "cpu_bg"; relative: 0.0 0.0; offset: 0 0; }
+            rel2 { to: "cpu_bg"; relative: 1.0 0.0; offset: -1 15; } // 16px (height) for the cpu_label + cpu_value
+            fixed: 0 1;
+            offscale;
+         }
+      }
+
+// spacer for the progressbar 
+      part { 
+         name: "cpu_bar_spacer";
+         type: SPACER;
+         scale: 1;
+
+         description { 
+            state: "default" 0.0;
+            rel1 { to: "cpu_header"; relative: 0.0 1.0; }
+            rel2 { to: "cpu_bg"; relative: 1.0 1.0; }
+            fixed: 0 1;
+         }
+      }
+ 
+/*
+      part { name: "zone_header-debug"; // debug rectangle to visualize the positioning of the headers
+         type: RECT; scale: 1;
+         description { state: "default" 0.0;
+            rel1 { to: "cpu_bg"; relative: 0.0 0.0; offset: 0 0; }
+            rel2 { to: "cpu_bg"; relative: 1.0 0.0; offset: -1 15; } // 16px (height)
+            fixed: 0 1; color: 0 255 0 255; offscale;
+            offscale;
+         }
+      }
+
+      part { name: "zone_bar-debug"; // debug rectangle to visualize the positioning of the progressbar
+         type: RECT; scale: 1;
+         description { state: "default" 0.0;
+            rel1 { to: "cpu_header"; relative: 0.0 1.0; }
+            rel2 { to: "cpu_bg"; relative: 1.0 1.0; } // 16px (height)
+            fixed: 0 1; color: 255 128 0 255;
+         }
+      }
+*/
+
+// CPU label
+      part { 
+         name: "cpu_label";
+         type: TEXT;
+         scale: 1;
+         mouse_events: 0;
+
+         description { 
+            state: "default" 0.0;
+            rel1 { to: "cpu_header"; relative: 0.0 0.0; offset: 4 4; } //0 4;} 
+            rel2 { to: "cpu_header"; relative: 0.5 1.0; offset: -1 -1; }
+
+            text { 
+               font: FNBD; size: 10;
+               text: "CPU";
+               align: 0.0 0.5;
+            }
+
+            color_class: "/procvue/text/label";
+            offscale;
+         }
+      }
+
+// CPU value
+      part { 
+         name: "cpu_value"; //edje_object_part_text_set(panel_cpu, "cpu_value", buf);
+         type: TEXT;
+         scale: 1;
+         mouse_events: 0;
+
+         description { 
+            state: "default" 0.0;
+            rel1 { to: "cpu_header"; relative: 0.5 0.0; offset: 0 4; } 
+            rel2 { to: "cpu_header"; relative: 1.0 1.0; offset: -5 -1; } 
+
+            text { 
+               font: FN; size: 10; 
+               align: 1.0 0.5;
+               text: "0%";
+            }
+
+            color_class: "/procvue/bar/cpu_value";
+            offscale;
+         }
+      }
+
+// CPU background pill
+      part { 
+         name: "cpu_bar_bg";
+         type: IMAGE;
+         scale: 1;
+         mouse_events: 0;
+
+         description { 
+            state: "default" 0.0;
+            rel1 { to: "cpu_bar_spacer"; relative: 0.0 0.0; offset: 4 0; } 
+            rel2 { to: "cpu_bar_spacer"; relative: 1.0 1.0; offset: -5 -1; } 
+            image.normal: "images/bg.png";
+            image.border: 5 5 5 5;
+            min: 0 6;
+            max: 9999 6;
+            fixed: 0 1;
+            color_class: "/procvue/bar/bg";
+            offscale;
+         }
+      }
+
+      part { 
+         name: "cpu_bar_confine"; // dragable needs to be confined
+         type: RECT;
+         scale: 1;
+         mouse_events: 0;
+
+         description { 
+            state: "default" 0.0;
+            rel1 { to: "cpu_bar_bg"; relative: 0.0 0.0; }
+            rel2 { to: "cpu_bar_bg"; relative: 1.0 1.0; }
+            color: 0 0 0 0; // no cc
+            visible: 0;
+         }
+      }
+
+      part { 
+         name: "cpu_bar_drag"; //edje_object_part_drag_value_set(panel_cpu, "cpu_bar_drag", cpu, 0.0);
+         type: RECT;
+         scale: 1;
+         mouse_events: 0;
+
+         dragable { 
+            x: 1 1 0; 
+            confine: "cpu_bar_confine"; 
+         }
+
+         description { 
+            state: "default" 0.0;
+            rel1 { to: "cpu_bar_bg"; relative: 0.0 0.0; }
+            rel2 { to: "cpu_bar_bg"; relative: 0.0 1.0; }
+            min: 0 6;
+            max: 9999 6;
+            fixed: 0 1;
+            color: 0 0 0 0; // no cc
+         }
+      }
+
+      part { 
+         name: "cpu_bar_clip"; // image clip to simulate round corners
+         type: IMAGE;
+         scale: 1;
+         mouse_events: 0;
+
+         description { 
+            state: "default" 0.0;
+            rel1 { to: "cpu_bar_bg"; relative: 0.0 0.0; }
+            rel2 { to: "cpu_bar_bg"; relative: 1.0 1.0; }
+            image.normal: "images/bg.png";
+            image.border: 5 5 5 5;
+            min: 0 6; // confine the cpu_bar to the clip
+            max: 9999 6; 
+            fixed: 0 1;
+            color: 255 255 255 255; // no cc
+         }
+      }
+
+      part { 
+         name: "cpu_bar";
+         type: RECT;
+         scale: 1;
+         clip_to: "cpu_bar_clip";
+         mouse_events: 0;
+
+         description { 
+            state: "default" 0.0;
+            rel1 { to: "cpu_bar_bg"; relative: 0.0 0.0; }
+            rel2 { to: "cpu_bar_drag"; relative: 1.0 1.0; }
+            min: 0 6; 
+            max: 9999 6;
+            fixed: 0 1;
+            color_class: "/procvue/bar/cpu";
+         }
+      }
+   }
+}

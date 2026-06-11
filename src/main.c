@@ -2,8 +2,8 @@
  * main.c
  *
  * Architecture:
- *   procvue is a fixed-panel ambient system monitor built on EFL without
- *   Elementary, using ecore, ecore-evas, and edje only.  It sits on the
+ *   procvue is a fixed-panel ambient system monitor built on EFL using
+ *   Elementary, ecore, ecore-evas, and edje only.  It sits on the
  *   desktop and breathes with the machine: glanceable, not interactive.
  *
  *   System data comes entirely from libenigmatic_client (CPU, RAM, NET,
@@ -28,7 +28,7 @@
  *                    g_disk_rd, g_disk_wr
  *   enigmatic.c/h  — enigmatic_init_cb, enigmatic_update_cb, LED decay;
  *                    populates g_disk_rd / g_disk_wr each snapshot
- *   poll.c/h       — poll_cb: hostname clock, loginctl, disk, uptime
+ *   poll.c/h       — poll_cb: hostname clock, loginctl
  *   disk.c/h       — enigmatic fs->usage.read / fs->usage.write reader
  *   uptime.c/h     — enigmatic_system_uptime_get() wrapper
  */
@@ -38,6 +38,7 @@
 #include <Ecore.h>
 #include <Ecore_Evas.h>
 #include <Edje.h>
+#include <Elementary.h>
 #include <Eio.h>
 #include <Enigmatic_Client.h>
 
@@ -45,7 +46,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <limits.h>
-#include <getopt.h>
 
 #include "main.h"
 #include "enigmatic.h"
@@ -57,6 +57,8 @@
 /* ------------------------------------------------------------------ */
 
 Evas_Object      *edje         = NULL;
+Evas_Object      *layout       = NULL;
+
 const char       *g_iface      = NULL;
 Enigmatic_Client *enigmatic    = NULL;
 
@@ -117,11 +119,11 @@ procvue_init(void *data EINA_UNUSED)
 /* ------------------------------------------------------------------ */
 
 static void
-win_delete_cb(Ecore_Evas *window)
+win_delete_cb(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
-   Procvue_Config cfg;
-   ecore_evas_geometry_get(window, &cfg.x, &cfg.y, &cfg.w, &cfg.h);
-   cfg.scale = edje_scale_get();
+   Ecore_Evas *ee = data;
+   Procvue_Config cfg = {0};
+   ecore_evas_geometry_get(ee, &cfg.x, &cfg.y, NULL, NULL);
 
    if (!procvue_config_save(&cfg))
       fprintf(stderr, "procvue: failed to save geometry\n");
@@ -129,13 +131,29 @@ win_delete_cb(Ecore_Evas *window)
    ecore_main_loop_quit();
 }
 
-static void
-usage(void)
+/* ------------------------------------------------------------------ */
+/* _config_changed_cb — live rescale when E changes scale at runtime  */
+/* ------------------------------------------------------------------ */
+
+static Eina_Bool
+_config_changed_cb(void *data, int type EINA_UNUSED, void *event EINA_UNUSED)
 {
-   fprintf(stdout, "procvue [OPTIONS]\n");
-   fprintf(stdout, "Where OPTIONS can be one of:\n");
-   fprintf(stdout, "   -s SCALE       Scale factor (e.g. -s 1.5 = 150%%)\n");
-   fprintf(stdout, "   -h | --help    This menu\n");
+   static double last_scale = 0.0;
+
+   Evas_Object *window = data;
+   double        scale  = elm_config_scale_get();
+   if (scale < 1.0 || scale > 2.0) scale = 1.0;
+
+   if (scale == last_scale) return ECORE_CALLBACK_PASS_ON;
+   last_scale = scale;
+
+   int win_w = (int)(WIN_W * scale);
+   int win_h = (int)(WIN_H * scale);
+
+   evas_object_resize(window, win_w, win_h);
+   evas_object_resize(layout, win_w, win_h);
+
+   return ECORE_CALLBACK_PASS_ON;
 }
 
 /* ------------------------------------------------------------------ */
@@ -145,42 +163,15 @@ usage(void)
 int
 main(int argc, char *argv[])
 {
-   double      scale   = 1.0;
-   int         opt;
 
-   if (argc > 1 && strcmp(argv[1], "--help") == 0)
-     {
-        usage();
-        return 0;
-     }
-
-   while ((opt = getopt(argc, argv, "s:h")) != -1)
-     {
-        switch (opt)
-          {
-           case 's': scale = atof(optarg); break;
-           case 'h': usage(); return 0;
-           default:
-             fprintf(stderr, "usage: procvue [-s scale]\n");
-             return 1;
-          }
-     }
-
-   ecore_evas_init();
+   elm_init(argc, argv);
    edje_init();
    eio_init();
 
-   /* Load saved geometry — applies before CLI/env scale so those     */
-   /* still take priority.                                            */
+   /* Load saved positioning from .eet */
    Procvue_Config *cfg = procvue_config_load();
 
-   /* Scale resolution: CLI -s > E_SCALE > saved > default           */
-   if (scale == 1.0)
-     {
-        const char *e_scale = getenv("E_SCALE");
-        if (e_scale)       scale = atof(e_scale);
-        else if (cfg->scale > 0.0) scale = cfg->scale;
-     }
+   double scale = elm_config_scale_get();
    if (scale < 1.0 || scale > 2.0) scale = 1.0;
 
    edje_scale_set(scale);
@@ -188,7 +179,7 @@ main(int argc, char *argv[])
    int win_w = (int)(WIN_W * scale);
    int win_h = (int)(WIN_H * scale);
 
-   Ecore_Evas *window = ecore_evas_new(NULL, 0, 0, win_w, win_h, NULL);
+   Evas_Object *window = elm_win_add(NULL, "procvue", ELM_WIN_BASIC);
    if (!window)
      {
         fprintf(stderr, "procvue: could not create window\n");
@@ -196,38 +187,45 @@ main(int argc, char *argv[])
         return 1;
      }
 
-   ecore_evas_title_set(window, "procvue");
-   ecore_evas_borderless_set(window, EINA_FALSE);
-   ecore_evas_callback_delete_request_set(window, win_delete_cb);
+   elm_win_borderless_set(window, EINA_FALSE);
+   
+   /* Extract underlying Ecore_Evas handle for geometry and placement management */
+   Ecore_Evas *ee = ecore_evas_ecore_evas_get(evas_object_evas_get(window));
+   evas_object_smart_callback_add(window, "delete,request", win_delete_cb, ee);
+   ecore_event_handler_add(ELM_EVENT_CONFIG_ALL_CHANGED, _config_changed_cb, window);
 
-   /* Restore saved position before show()                           */
-   ecore_evas_move(window, cfg->x, cfg->y);
+   /* Restore saved position and enforce starting bounds */
+   evas_object_resize(window, win_w, win_h);
+   ecore_evas_move(ee, cfg->x, cfg->y);
 
    free(cfg);
-
-   Evas *canvas = ecore_evas_get(window);
-   edje = edje_object_add(canvas);
 
    char edj_path[PATH_MAX];
    snprintf(edj_path, sizeof(edj_path), PROCVUE_DATADIR "/procvue.edj");
 
-   if (!edje_object_file_set(edje, edj_path, EDJ_GROUP))
+/* error block */
+   layout = elm_layout_add(window);
+   if (!elm_layout_file_set(layout, edj_path, EDJ_GROUP))
      {
-        int err = edje_object_load_error_get(edje);
-        fprintf(stderr, "procvue: could not load '%s' from %s: %s\n",
+        Evas_Object *fail_edje = elm_layout_edje_get(layout);
+        int err = edje_object_load_error_get(fail_edje);
+        fprintf(stderr, "procvue: could not load '%s' from %s: %s\n", 
                 EDJ_GROUP, edj_path, edje_load_error_str(err));
-        evas_object_del(edje);
-        ecore_evas_free(window);
+        evas_object_del(layout);
+        evas_object_del(window);
         eio_shutdown();
         edje_shutdown();
-        ecore_evas_shutdown();
+        elm_shutdown();
         return 1;
      }
 
-   evas_object_move(edje, 0, 0);
-   evas_object_resize(edje, win_w, win_h);
-   evas_object_show(edje);
-   ecore_evas_show(window);
+   edje = elm_layout_edje_get(layout);
+
+   evas_object_move(layout, 0, 0);
+   evas_object_resize(layout, win_w, win_h);
+
+   evas_object_show(layout);
+   evas_object_show(window);
 
    ecore_timer_add(0.1, procvue_init, NULL);
 
@@ -239,10 +237,10 @@ main(int argc, char *argv[])
    if (rx_off_timer) { ecore_timer_del(rx_off_timer); rx_off_timer = NULL; }
    if (tx_off_timer) { ecore_timer_del(tx_off_timer); tx_off_timer = NULL; }
    procvue_config_shutdown(); /* free eet */
-   evas_object_del(edje);
-   ecore_evas_free(window);
+   evas_object_del(layout);
+   evas_object_del(window);
    eio_shutdown();
    edje_shutdown();
-   ecore_evas_shutdown();
+   elm_shutdown();
    return 0;
 }

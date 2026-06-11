@@ -1,0 +1,161 @@
+group {
+   name: "procvue/panel/procs";
+   min: 64 32;
+
+   parts {
+      part { 
+         name: "procs_bg";
+         type: IMAGE; 
+         scale: 1;
+         mouse_events: 0;
+
+         description { state: "default" 0.0;
+            image.normal: "images/bg.png";
+            image.border: 4 4 4 4;
+            color_class: "/procvue/bg/panel";
+         }
+      }
+
+// spacer for the headers (procs_label, procs_value)
+      part { 
+         name: "procs_header_spacer";
+         type: SPACER;
+         scale: 1;
+
+         description { 
+            state: "default" 0.0;
+            rel1 { to: "procs_bg"; relative: 0.0 0.0; }
+            rel2 { to: "procs_bg"; relative: 1.0 0.0; offset: -1 15; } // 16px (height) for the procs_label + procs_value
+            fixed: 0 1;
+            offscale;
+         }
+      }
+
+// spacer for the procs_users_label, procs_users_value
+      part { 
+         name: "procs_users_spacer";
+         type: SPACER;
+         scale: 1;
+
+         description { 
+            state: "default" 0.0;
+            rel1 { to: "procs_header_spacer"; relative: 0.0 1.0; }
+            rel2 { to: "procs_bg"; relative: 1.0 1.0; } // 16px (height) for the procs_users_label + procs_users_value
+            fixed: 0 1;
+         }
+      }
+
+/*
+      part { name: "procs_header-debug"; // debug rectangle to visualize the positioning of the procs header
+         type: RECT; scale: 1;
+         description { state: "default" 0.0;
+            rel1 { to: "procs_bg"; relative: 0.0 0.0; offset: 0 0; }
+            rel2 { to: "procs_bg"; relative: 1.0 0.0; offset: -1 15; } // 16px (height) for the procs_label + procs_value
+            fixed: 0 1; color: 0 255 0 255; offscale;
+            offscale;
+         }
+      }
+
+      part { name: "users_header-debug"; // debug rectangle to visualize the positioning of the user header
+         type: RECT; scale: 1;
+         description { state: "default" 0.0;
+            rel1 { to: "procs_header_spacer"; relative: 0.0 1.0; }
+            rel2 { to: "procs_bg"; relative: 1.0 1.0; } // 16px (height) for the procs_users_label + procs_users_value
+            fixed: 0 1; color: 255 128 0 255;
+         }
+      }
+*/
+
+// procs label
+      part { 
+         name: "procs_label";
+         type: TEXT;
+         scale: 1; 
+         mouse_events: 0; 
+
+         description { 
+            state: "default" 0.0;
+            rel1 { to: "procs_header_spacer"; relative: 0.0 0.0; offset: 4 4;} 
+            rel2 { to: "procs_header_spacer"; relative: 0.75 1.0; offset: -1 -1; }
+
+            text { 
+               font: FNBD; size: 10; 
+               align: 0.0 0.5; 
+               text: "PROC"; 
+            }
+
+            color_class: "/procvue/text/label";
+            offscale;
+         }
+      }
+
+// procs value
+      part { 
+         name: "procs_value"; //edje_object_part_text_set(panel_procs, "procs_value", buf);
+         type: TEXT; 
+         scale: 1; 
+         mouse_events: 0;
+
+         description { 
+            state: "default" 0.0;
+            rel1 { to: "procs_header_spacer"; relative: 0.5 0.0; offset: 0 4; } 
+            rel2 { to: "procs_header_spacer"; relative: 1.0 1.0; offset: -5 -1; } 
+
+            text { 
+               font: FN; size: 10; 
+               align: 1.0 0.5; 
+               text: "0"; 
+            }
+
+            color_class: "/procvue/text/proc";
+            offscale;
+         }
+      }
+
+// procs users label
+      part { 
+         name: "procs_users_label";
+         type: TEXT; 
+         scale: 1; 
+         mouse_events: 0;
+
+         description { 
+            state: "default" 0.0;
+            rel1 { to: "procs_users_spacer"; relative: 0.0 0.0; offset: 4 1; }
+            rel2 { to: "procs_users_spacer"; relative: 0.75 1.0; offset: -1 -2; }
+
+            text { 
+               font: FNBD; size: 10; 
+               align: 0.0 0.5; 
+               text: "USERS"; 
+            }
+
+            color_class: "/procvue/text/label";
+            offscale;
+         }
+      }
+
+// procs users 
+      part { 
+         name: "procs_users_value"; //edje_object_part_text_set(panel_procs, "procs_value", buf);
+         type: TEXT; 
+         scale: 1; 
+         mouse_events: 0; 
+
+         description { 
+            state: "default" 0.0;
+            rel1 { to: "procs_users_spacer"; relative: 0.25 0.0; offset: 0 1; }
+            rel2 { to: "procs_bg"; relative: 1.0 1.0; offset: -5 -2; }
+
+            text { 
+               font: FN; size: 10; 
+               align: 1.0 0.5; 
+               text: "0"; 
+            }
+
+            color_class: "/procvue/text/proc";
+            offscale;
+         }
+      }
+   }
+}

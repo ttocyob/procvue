@@ -1,0 +1,79 @@
+color_classes {
+
+// window & panels 
+   color_class { name: "/procvue/bg"; // window bg
+      color: 96 100 104 255; }
+
+   color_class { name: "/procvue/bg/panel"; // panels
+      color: 26 26 26 255; }
+
+// text 
+   color_class { name: "/procvue/text/label";
+      color: 140 140 140 255; }
+
+   color_class { name: "/procvue/text/value";
+      color: 210 210 210 255; }
+
+   color_class { name: "/procvue/text/host";
+      color: 180 180 180 255; }
+
+   color_class { name: "/procvue/bar/cpu_value";
+      color: 100 180 100 255; } 
+
+   color_class { name: "/procvue/thermal/freq";
+      color: 255 255 255 255; }
+
+   color_class { name: "/procvue/text/proc";
+      color: 160 130 200 255; } 
+
+   color_class { name: "/procvue/text/uptime";
+      color: 160 160 120 255; }
+
+// bars
+   color_class { name: "/procvue/bar/bg";
+      color: 40 40 40 255; } 
+
+   color_class { name: "/procvue/bar/cpu";
+      color: 100 180 100 255; } 
+
+   color_class { name: "/procvue/bar/ram";
+      color: 100 140 200 255; } 
+
+   color_class { name: "/procvue/value/ram";
+      color: 100 140 200 255; } 
+
+   color_class { name: "/procvue/bar/disk";
+      color: 255 204  10 255; } 
+
+   color_class { name: "/procvue/value/disk";
+      color: 255 204  10 255; } 
+
+// thermal temp badge
+   color_class { name: "/procvue/thermal/temp/default"; // temp value, cool
+      color: 100 140 180 255; }
+
+   color_class { name: "/procvue/thermal/temp/warm"; // temp value, warm
+      color: 255 204 10 224; } // ~ 88% opacity/12% translucency (better contrast for white text on yellow)
+
+   color_class { name: "/procvue/thermal/temp/hot"; //temp value, hot
+      color: 255 59 48 255; }
+
+// net LEDs (RX = green, TX = red) 
+   color_class { name: "/procvue/net/rx/dim";
+      color:  52 199  89  64; } 
+
+   color_class { name: "/procvue/net/rx/lo";
+      color:  52 199  89 128; } 
+
+   color_class { name: "/procvue/net/rx/hi";
+      color:  52 199  89 255; } 
+
+   color_class { name: "/procvue/net/tx/dim";
+      color: 255  59  48  64; } 
+
+   color_class { name: "/procvue/net/tx/lo";
+      color: 255  59  48 128; } 
+
+   color_class { name: "/procvue/net/tx/hi";
+      color: 255  59  48 255; } 
+}
