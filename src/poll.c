@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <math.h>
+#include <utmp.h>
 
 #include "main.h"
 #include "poll.h"
@@ -45,13 +46,21 @@ poll_cb(void *data EINA_UNUSED)
 
    /* --- PROCS user count (loginctl — no enigmatic equivalent) ---- */
    {
-      int nusers = 0;
-      FILE *f = popen(
-         "loginctl list-sessions --no-legend 2>/dev/null"
-         " | awk '$6==\"user\" {print $3}' | wc -l", "r");
-      if (f) { fscanf(f, "%d", &nusers); pclose(f); }
-      snprintf(buf, sizeof(buf), "%d", nusers);
-      edje_object_part_text_set(edje, "procs:procs_users_value", buf);
+   int nusers = 0;
+   FILE *f = popen(
+      "loginctl list-sessions --no-legend 2>/dev/null"
+      " | awk '$6==\"user\" {print $3}' | wc -l", "r");
+   if (f) { fscanf(f, "%d", &nusers); pclose(f); }
+   if (nusers == 0)
+     {
+        struct utmp *ut;
+        setutent();
+        while ((ut = getutent()) != NULL)
+           if (ut->ut_type == USER_PROCESS) nusers++;
+        endutent();
+     }
+   snprintf(buf, sizeof(buf), "%d", nusers);
+   edje_object_part_text_set(edje, "procs:procs_users_value", buf);
    }
 
    /* --- DISK ----------------------------------------------------- */
