@@ -26,4 +26,7 @@ Eina_Bool enigmatic_start(void);
 void enigmatic_init_cb(Enigmatic_Client *client, Snapshot *s, void *data);
 void enigmatic_update_cb(Enigmatic_Client *client, Snapshot *s, void *data);
 
+/* expose enigmatic has stopped running */
+void enigmatic_stop(void);
+
 #endif /* ENIGMATIC_H */

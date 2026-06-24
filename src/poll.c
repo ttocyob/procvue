@@ -19,6 +19,7 @@
 #include <utmp.h>
 
 #include "main.h"
+#include "enigmatic.h"
 #include "poll.h"
 #include "disk.h"
 #include "uptime.h"

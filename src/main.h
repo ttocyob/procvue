@@ -51,4 +51,6 @@ extern uint64_t          g_disk_wr;
 extern Eina_Bool         g_enigmatic_ready;
 extern Eina_Bool         g_iface_locked;
 
+extern Ecore_Timer      *enigmatic_retry_timer;
+
 #endif /* PROCVUE_H */

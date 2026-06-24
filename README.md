@@ -8,8 +8,6 @@
 
 Procvue is a second-generation [enigmatic](https://git.enlightenment.org/netstar/enigmatic.git) client. System data is sourced from the enigmatic daemon via libenigmatic_client — procvue attaches to the running daemon and receives system snapshots in real time.
 
-Built with EFL (ecore, ecore-evas, edje) in C. No Elementary.
-
 ---
 
 ## Panels
@@ -26,14 +24,26 @@ Built with EFL (ecore, ecore-evas, edje) in C. No Elementary.
 ---
 
 ## Dependencies
-
-- EFL (ecore, ecore-evas, edje)
+- EFL (ecore, ecore-evas, edje, elementary)
 - [enigmatic](https://git.enlightenment.org/netstar/enigmatic.git) daemon + libenigmatic_client
 - Meson + Ninja
 
 ---
 
 ## Building
+
+Procvue requires the enigmatic daemon. Build and install it first:
+
+```bash
+git clone https://git.enlightenment.org/netstar/enigmatic.git
+cd enigmatic
+meson setup build
+ninja -C build
+sudo ninja -C build install
+enigmatic
+```
+
+Then build procvue:
 
 ```bash
 git clone https://github.com/ttocyob/procvue.git
@@ -47,6 +57,7 @@ sudo ninja -C build install
 
 ## Planned
 
+- Client-side decorations (CSD)
 - Battery panel
 - Other panels?
 

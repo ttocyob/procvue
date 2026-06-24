@@ -53,23 +53,24 @@
 #include "disk.h"
 
 /* ------------------------------------------------------------------ */
-/* Shared state definitions  (declared extern in procvue.h)           */
+/* Shared state definitions  (declared extern in main.h)           */
 /* ------------------------------------------------------------------ */
 
-Evas_Object      *edje         = NULL;
-Evas_Object      *layout       = NULL;
+Evas_Object      *edje                  = NULL;
+Evas_Object      *layout                = NULL;
 
-const char       *g_iface      = NULL;
-Enigmatic_Client *enigmatic    = NULL;
+const char       *g_iface               = NULL;
+Enigmatic_Client *enigmatic             = NULL;
 
-Ecore_Timer      *rx_off_timer = NULL;
-Ecore_Timer      *tx_off_timer = NULL;
+Ecore_Timer      *rx_off_timer          = NULL;
+Ecore_Timer      *tx_off_timer          = NULL;
+Ecore_Timer      *enigmatic_retry_timer = NULL;
 
-uint64_t          g_disk_rd    = 0;
-uint64_t          g_disk_wr    = 0;
+uint64_t          g_disk_rd             = 0;
+uint64_t          g_disk_wr             = 0;
 
-Eina_Bool    g_enigmatic_ready = EINA_FALSE;
-Eina_Bool       g_iface_locked = EINA_FALSE;
+Eina_Bool         g_enigmatic_ready     = EINA_FALSE;
+Eina_Bool         g_iface_locked        = EINA_FALSE;
 
 /* ------------------------------------------------------------------ */
 /* procvue_init — zeros bars, sets hostname, starts subsystems        */
@@ -105,8 +106,9 @@ procvue_init(void *data EINA_UNUSED)
       edje_object_part_text_set(edje, "hostname:hostname_label", hostname);
    }
 
-   /* Connect to enigmatic daemon (CPU, RAM, NET, PROCS, DISK)        */
-   enigmatic_start();
+   /* Connect to enigmatic daemon                                     */
+   if (!enigmatic_start())
+   fprintf(stderr, "procvue: retrying every 2s until enigmatic starts\n");
 
    /* Start 1-second poll for clock, loginctl, disk display, uptime   */
    poll_start();
@@ -236,6 +238,7 @@ main(int argc, char *argv[])
    if (enigmatic)    enigmatic_client_del(enigmatic);
    if (rx_off_timer) { ecore_timer_del(rx_off_timer); rx_off_timer = NULL; }
    if (tx_off_timer) { ecore_timer_del(tx_off_timer); tx_off_timer = NULL; }
+   if (enigmatic_retry_timer) { ecore_timer_del(enigmatic_retry_timer); enigmatic_retry_timer = NULL; }
    procvue_config_shutdown(); /* free eet */
    evas_object_del(layout);
    evas_object_del(window);

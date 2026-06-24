@@ -64,6 +64,13 @@ void
 enigmatic_update_cb(Enigmatic_Client *client EINA_UNUSED,
                     Snapshot *s, void *data EINA_UNUSED)
 {
+
+    if (!enigmatic_running())
+     {
+        enigmatic_stop();
+        return;
+     }
+
    char buf[128];
 
    /* --- CPU ------------------------------------------------------ */
@@ -220,6 +227,15 @@ enigmatic_init_cb(Enigmatic_Client *client, Snapshot *s, void *data)
    enigmatic_update_cb(client, s, data);
 }
 
+static Eina_Bool
+enigmatic_retry_cb(void *data EINA_UNUSED)
+{
+   if (!enigmatic_running()) return ECORE_CALLBACK_RENEW;
+   enigmatic_retry_timer = NULL;
+   if (enigmatic_start()) return ECORE_CALLBACK_CANCEL;
+   return ECORE_CALLBACK_RENEW;
+}
+
 /* ------------------------------------------------------------------ */
 /* enigmatic_start — open client, register callbacks                  */
 /* ------------------------------------------------------------------ */
@@ -230,6 +246,8 @@ enigmatic_start(void)
    if (!enigmatic_running())
      {
         fprintf(stderr, "procvue: enigmatic daemon is not running - start it with: enigmatic\n");
+        if (!enigmatic_retry_timer)
+           enigmatic_retry_timer = ecore_timer_add(2.0, enigmatic_retry_cb, NULL);
         return EINA_FALSE;
      }
 
@@ -245,5 +263,38 @@ enigmatic_start(void)
                                 enigmatic_update_cb,
                                 NULL);
    g_enigmatic_ready = EINA_TRUE;
+   edje_object_signal_emit(edje, "enigmatic,on", "procvue");
    return EINA_TRUE;
+}
+
+void
+enigmatic_stop(void)
+{
+   g_enigmatic_ready = EINA_FALSE;
+
+   if (enigmatic)
+     {
+        enigmatic_client_del(enigmatic);
+        enigmatic = NULL;
+     }
+
+   /* Reset all enigmatic-driven panels to "--" and zero bars */
+   edje_object_part_text_set(edje, "cpu:cpu_value",              "--");
+   edje_object_part_text_set(edje, "ram:ram_value",              "--");
+   edje_object_part_text_set(edje, "disk:rd_value_text",         "--");
+   edje_object_part_text_set(edje, "disk:wr_value_text",         "--");
+   edje_object_part_text_set(edje, "procs:procs_value",          "--");
+   edje_object_part_text_set(edje, "thermal:thermal_freq_value", "--");
+   edje_object_part_text_set(edje, "thermal:thermal_temp_value", "--");
+
+   edje_object_part_drag_value_set(edje, "cpu:cpu_bar_drag", 0.0, 0.0);
+   edje_object_part_drag_value_set(edje, "ram:ram_bar_drag", 0.0, 0.0);
+   edje_object_part_drag_value_set(edje, "disk:rd_bar_drag", 0.0, 0.0);
+   edje_object_part_drag_value_set(edje, "disk:wr_bar_drag", 0.0, 0.0);
+
+   edje_object_signal_emit(edje, "enigmatic,off", "procvue");
+   edje_object_signal_emit(edje, "temp,default",  "procvue");
+
+   if (!enigmatic_retry_timer)
+   enigmatic_retry_timer = ecore_timer_add(2.0, enigmatic_retry_cb, NULL);
 }
