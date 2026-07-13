@@ -181,10 +181,7 @@ main(int argc, char *argv[])
    int win_w = (int)(WIN_W * scale);
    int win_h = (int)(WIN_H * scale);
 
-Evas_Object *window = elm_win_add(NULL, "procvue", ELM_WIN_DIALOG_BASIC);
-elm_win_title_set(window, "Procvue");
-
-   //Evas_Object *window = elm_win_add(NULL, "procvue", ELM_WIN_BASIC);
+   Evas_Object *window = elm_win_add(NULL, "procvue", ELM_WIN_BASIC);
    if (!window)
      {
         fprintf(stderr, "procvue: could not create window\n");
@@ -192,7 +189,7 @@ elm_win_title_set(window, "Procvue");
         return 1;
      }
 
-   //elm_win_borderless_set(window, EINA_FALSE);
+   elm_win_borderless_set(window, EINA_FALSE);
    
    /* Extract underlying Ecore_Evas handle for geometry and placement management */
    Ecore_Evas *ee = ecore_evas_ecore_evas_get(evas_object_evas_get(window));
