@@ -116,10 +116,6 @@ procvue_init(void *data EINA_UNUSED)
    return ECORE_CALLBACK_CANCEL;
 }
 
-/* ------------------------------------------------------------------ */
-/* win_delete_cb                                                      */
-/* ------------------------------------------------------------------ */
-
 static void
 win_delete_cb(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
@@ -132,10 +128,6 @@ win_delete_cb(void *data, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UN
 
    ecore_main_loop_quit();
 }
-
-/* ------------------------------------------------------------------ */
-/* _config_changed_cb — live rescale when E changes scale at runtime  */
-/* ------------------------------------------------------------------ */
 
 static Eina_Bool
 _config_changed_cb(void *data, int type EINA_UNUSED, void *event EINA_UNUSED)
@@ -157,10 +149,6 @@ _config_changed_cb(void *data, int type EINA_UNUSED, void *event EINA_UNUSED)
 
    return ECORE_CALLBACK_PASS_ON;
 }
-
-/* ------------------------------------------------------------------ */
-/* main                                                               */
-/* ------------------------------------------------------------------ */
 
 int
 main(int argc, char *argv[])
@@ -224,11 +212,20 @@ main(int argc, char *argv[])
 
    edje = elm_layout_edje_get(layout);
 
+   elm_win_resize_object_add(window, layout);
+
+   evas_object_size_hint_min_set(layout, win_w, win_h);
+   evas_object_size_hint_max_set(layout, win_w, win_h);
+
    evas_object_move(layout, 0, 0);
    evas_object_resize(layout, win_w, win_h);
 
    evas_object_show(layout);
    evas_object_show(window);
+
+   evas_smart_objects_calculate(evas_object_evas_get(window));
+   evas_object_size_hint_max_set(window, win_w, win_h);
+   evas_object_resize(window, win_w, win_h);
 
    ecore_timer_add(0.1, procvue_init, NULL);
 
