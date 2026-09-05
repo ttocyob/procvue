@@ -245,13 +245,16 @@ enigmatic_start(void)
 {
    if (!enigmatic_running())
      {
-        fprintf(stderr, "procvue: enigmatic daemon is not running - start it with: enigmatic\n");
+        fprintf(stderr, "procvue: enigmatic daemon not running - launching it\n");
+        ecore_exe_run("enigmatic_start", NULL);
+
         if (!enigmatic_retry_timer)
            enigmatic_retry_timer = ecore_timer_add(2.0, enigmatic_retry_cb, NULL);
         return EINA_FALSE;
      }
 
    enigmatic = enigmatic_client_open();
+
    if (!enigmatic)
      {
         fprintf(stderr, "procvue: enigmatic client open failed\n");
