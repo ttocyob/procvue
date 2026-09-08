@@ -44,9 +44,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <limits.h>
 
+#include "procvue_version.h"
 #include "main.h"
 #include "enigmatic.h"
 #include "poll.h"
@@ -153,6 +155,14 @@ _config_changed_cb(void *data, int type EINA_UNUSED, void *event EINA_UNUSED)
 int
 main(int argc, char *argv[])
 {
+   for (int i = 1; i < argc; i++)
+     {
+        if (!strcmp(argv[i], "--version") || !strcmp(argv[i], "-v"))
+          {
+             puts("procvue " PROCVUE_VERSION);
+             return 0;
+          }
+     }
 
    elm_init(argc, argv);
    edje_init();

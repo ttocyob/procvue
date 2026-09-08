@@ -1,5 +1,5 @@
 project('procvue', 'c', 
-        version : '0.3.0')
+        version : '0.3.1')
 
 efl_version = '>= 1.27.0'
 
