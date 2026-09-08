@@ -231,9 +231,22 @@ static Eina_Bool
 enigmatic_retry_cb(void *data EINA_UNUSED)
 {
    if (!enigmatic_running()) return ECORE_CALLBACK_RENEW;
+
    enigmatic_retry_timer = NULL;
-   if (enigmatic_start()) return ECORE_CALLBACK_CANCEL;
-   return ECORE_CALLBACK_RENEW;
+
+   enigmatic = enigmatic_client_open();
+   if (!enigmatic)
+     {
+        fprintf(stderr, "procvue: enigmatic client open failed\n");
+        enigmatic_retry_timer = ecore_timer_add(2.0, enigmatic_retry_cb, NULL);
+        return ECORE_CALLBACK_CANCEL;
+     }
+
+   enigmatic_client_monitor_add(enigmatic, enigmatic_init_cb, enigmatic_update_cb, NULL);
+   g_enigmatic_ready = EINA_TRUE;
+   edje_object_signal_emit(edje, "enigmatic,on", "procvue");
+
+   return ECORE_CALLBACK_CANCEL;
 }
 
 /* ------------------------------------------------------------------ */
@@ -245,8 +258,13 @@ enigmatic_start(void)
 {
    if (!enigmatic_running())
      {
+        if (!enigmatic_launch())
+          {
+             fprintf(stderr, "procvue: enigmatic daemon not running - launch failed\n");
+             return EINA_FALSE;
+          }
+
         fprintf(stderr, "procvue: enigmatic daemon not running - launching it\n");
-        ecore_exe_run("enigmatic_start", NULL);
 
         if (!enigmatic_retry_timer)
            enigmatic_retry_timer = ecore_timer_add(2.0, enigmatic_retry_cb, NULL);
