@@ -1,6 +1,18 @@
 procvue_edj = custom_target('procvue.edj',
   input        : 'procvue.edc',
   output       : 'procvue.edj',
+  depend_files : [
+    'colorclasses.edc',
+    'groups.edc',
+    'cpu.edc',
+    'disk.edc',
+    'hostname.edc',
+    'net.edc',
+    'procs.edc',
+    'ram.edc',
+    'thermal.edc',
+    'uptime.edc',
+  ],
   command      : [
     edje_cc,
     '-id', meson.current_source_dir(),
