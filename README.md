@@ -40,7 +40,7 @@ cd enigmatic
 meson setup build
 ninja -C build
 sudo ninja -C build install
-enigmatic
+enigmatic &
 ```
 
 Then build procvue:
